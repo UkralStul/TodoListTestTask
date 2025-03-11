@@ -14,3 +14,20 @@ func Connect(cfg *config.Config) (*pgx.Conn, error) {
 	}
 	return conn, nil
 }
+
+func InitTasksTable(ctx context.Context, conn *pgx.Conn) error {
+	_, err := conn.Exec(ctx, `
+        CREATE TABLE IF NOT EXISTS tasks (
+            id SERIAL PRIMARY KEY,
+            title TEXT NOT NULL,
+            description TEXT,
+            status TEXT CHECK (status IN ('new', 'in_progress', 'done')) DEFAULT 'new',
+            created_at TIMESTAMP DEFAULT NOW(),
+            updated_at TIMESTAMP DEFAULT NOW()
+        )
+    `)
+	if err != nil {
+		return fmt.Errorf("failed to create table tasks: %v", err)
+	}
+	return nil
+}
