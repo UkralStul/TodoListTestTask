@@ -41,18 +41,23 @@ func (h *DBHandler) CreateTask(c *fiber.Ctx) error {
 
 // Обновление таски
 func (h *DBHandler) UpdateTask(c *fiber.Ctx) error {
+	idFromParam := c.Params("id")
+
+	id, err := strconv.Atoi(idFromParam)
 	var task models.Task
 
 	if err := c.BodyParser(&task); err != nil {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	err := database.UpdateTask(context.Background(), h.Conn, task.ID, task)
+	task.ID = id
+
+	updatedTask, err := database.UpdateTask(context.Background(), h.Conn, task.ID, task)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	return c.Status(fiber.StatusOK).JSON(fiber.Map{"id": task})
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{"id": updatedTask.ID, "title": updatedTask.Title, "description": updatedTask.Description, "status": updatedTask.Status})
 }
 
 // Получение всех тасок

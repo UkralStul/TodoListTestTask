@@ -6,6 +6,7 @@ import (
 	"github.com/UkralStul/TodoListTestTask/internal/config"
 	"github.com/UkralStul/TodoListTestTask/internal/models"
 	"github.com/jackc/pgx/v5"
+	"time"
 )
 
 // Подключение к базе данных
@@ -79,16 +80,16 @@ func GetAllTasks(ctx context.Context, conn *pgx.Conn) ([]models.Task, error) {
 }
 
 // Обновление таски
-func UpdateTask(ctx context.Context, conn *pgx.Conn, id int, task models.Task) error {
+func UpdateTask(ctx context.Context, conn *pgx.Conn, id int, task models.Task) (models.Task, error) {
 	_, err := conn.Exec(ctx, `
         UPDATE tasks
-        SET title = $1, description = $2, status = $3
-        WHERE id = $4
-    `, task.Title, task.Description, task.Status, id)
+        SET title = $1, description = $2, status = $3, updated_at = $4
+        WHERE id = $5
+    `, task.Title, task.Description, task.Status, time.Now(), id)
 	if err != nil {
-		return fmt.Errorf("failed to update task: %v", err)
+		return task, fmt.Errorf("failed to update task: %v", err)
 	}
-	return nil
+	return task, nil
 }
 
 // Удаление таски
