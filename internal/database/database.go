@@ -49,20 +49,6 @@ func CreateTask(ctx context.Context, conn *pgx.Conn, task models.Task) (int, err
 	return id, nil
 }
 
-// Получение одной таски по id
-func GetTask(ctx context.Context, conn *pgx.Conn, id int) (models.Task, error) {
-	var task models.Task
-	err := conn.QueryRow(ctx, `
-        SELECT id, title, description, status, created_at, updated_at
-        FROM tasks
-        WHERE id = $1
-    `, id).Scan(&task.ID, &task.Title, &task.Description, &task.Status, &task.CreatedAt, &task.UpdatedAt)
-	if err != nil {
-		return models.Task{}, fmt.Errorf("failed to get task: %v", err)
-	}
-	return task, nil
-}
-
 // Получение всех тасок
 func GetAllTasks(ctx context.Context, conn *pgx.Conn) ([]models.Task, error) {
 	rows, err := conn.Query(ctx, `
