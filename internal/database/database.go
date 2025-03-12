@@ -38,6 +38,9 @@ func InitTasksTable(ctx context.Context, conn *pgx.Conn) error {
 // Создание таски
 func CreateTask(ctx context.Context, conn *pgx.Conn, task models.Task) (int, error) {
 	var id int
+	if task.Status == "" {
+		task.Status = "new"
+	}
 	err := conn.QueryRow(ctx, `
         INSERT INTO tasks (title, description, status)
         VALUES ($1, $2, $3)
