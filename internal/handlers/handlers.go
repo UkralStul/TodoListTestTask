@@ -4,13 +4,13 @@ import (
 	"context"
 	"github.com/UkralStul/TodoListTestTask/internal/database"
 	"github.com/UkralStul/TodoListTestTask/internal/models"
-	"github.com/gofiber/fiber"
+	"github.com/gofiber/fiber/v2"
 	"github.com/jackc/pgx/v5"
 	"strconv"
 )
 
 type DBHandler struct {
-	conn *pgx.Conn
+	Conn *pgx.Conn
 }
 
 // Хендлер создания таски
@@ -31,7 +31,7 @@ func (h *DBHandler) CreateTask(c *fiber.Ctx) error {
 		})
 	}
 
-	id, err := database.CreateTask(context.Background(), h.conn, task)
+	id, err := database.CreateTask(context.Background(), h.Conn, task)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -47,7 +47,7 @@ func (h *DBHandler) UpdateTask(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid request body"})
 	}
 
-	err := database.UpdateTask(context.Background(), h.conn, task.ID, task)
+	err := database.UpdateTask(context.Background(), h.Conn, task.ID, task)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -57,7 +57,7 @@ func (h *DBHandler) UpdateTask(c *fiber.Ctx) error {
 
 // Получение всех тасок
 func (h *DBHandler) ReadAllTasks(c *fiber.Ctx) error {
-	tasks, err := database.GetAllTasks(context.Background(), h.conn)
+	tasks, err := database.GetAllTasks(context.Background(), h.Conn)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
@@ -76,11 +76,10 @@ func (h *DBHandler) DeleteTask(c *fiber.Ctx) error {
 		})
 	}
 
-	err = database.DeleteTask(context.Background(), h.conn, id)
+	err = database.DeleteTask(context.Background(), h.Conn, id)
 	if err != nil {
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{"error": err.Error()})
 	}
 
-	c.SendStatus(fiber.StatusNoContent)
-	return nil
+	return c.SendStatus(fiber.StatusNoContent)
 }
